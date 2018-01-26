@@ -17,7 +17,7 @@ namespace coil_test_and_switch
         {
             private bool Closing = false;
             private bool Listening = false;
-            private long received_count = 0;//接收计数  
+            //private long received_count = 0;//接收计数  
             private StringBuilder builder = new StringBuilder();//避免在事件处理方法中反复的创建，定义到外面。  
             public SerialportSampleForm()
             {
@@ -103,6 +103,11 @@ namespace coil_test_and_switch
             private void SerialportSampleForm_Load_1(object sender, EventArgs e)
             {
                 string[] ports = SerialPort.GetPortNames();
+                if (ports == null)
+                {
+                    MessageBox.Show("本机没有串口！", "Error");
+                    return;
+                }
                 Array.Sort(ports);
                 comboPortName.Items.AddRange(ports);
                 comboPortName.SelectedIndex = comboPortName.Items.Count > 0 ? 0 : -1;
@@ -111,61 +116,71 @@ namespace coil_test_and_switch
             void comm_DataReceived(object sender, SerialDataReceivedEventArgs e)
             {
                 if (Closing) return;//如果正在关闭，忽略操作，直接返回，尽快的完成串口监听线程的一次循环  
+                               
                 try
                 {
                     Listening = true;  
                     int n = comm.BytesToRead;
-                    byte[] buf = new byte[n];
-                    received_count += n;
+                    char[] buf = new char[n];
+                    //received_count += n;
                     comm.Read(buf, 0, n);
                     builder.Clear();
 
-                    char[] cpara = System.Text.Encoding.Default.GetChars(buf);
+                    //char[] cpara = System.Text.Encoding.Default.GetChars(buf);
                     
                     //输出这些信息
-                    String para = new String(cpara);
-                    string txt = ByteToHexStr(buf); //用到函数，作用：转换16进制
-                    string text = Encoding.ASCII.GetString(buf); //ASCII卡码
+                    String para = new String(buf);
+                    //string txt = ByteToHexStr(buf); //转换16进制
+                    //byte[] txt = strToToHexByte(para);
+                    string txt = ConvertStringToHex(para);
+                    //string text = Encoding.ASCII.GetString(buf); //ASCII码
 
-                    //string s = spara.Substring(12,2); 
-                    if(txt.Length<15)
-                    { MessageBox.Show("LengthError"); return; }
-                    string s = txt.Substring(12, 2);
+                    //string input = comm.ReadLine();
+                    //char[] values = input.ToCharArray();
+                    //String parain = new String(values);
+                    
+                        //string s = spara.Substring(12,2); 
+                    if (txt.Length < 19)
+                        { MessageBox.Show("LengthError"); return; }
+
+                    String s = txt.Substring(11, 2);
                     String spara = "";// new String(cpara); 
                     if(s == "01")
-                        spara = "当前线圈为：苏州众致 16通道 头颈上部分线圈";
+                        spara = "当前线圈为：苏州众志 16通道 头颈上部分线圈";
                     else if(s == "02")
-                        spara = "当前线圈为：苏州众致 16通道 头颈下部分线圈";
+                        spara = "当前线圈为：苏州众志 16通道 头颈下部分线圈";
                     else if(s == "03")
-                        spara = "当前线圈为：苏州众致 18通道 脊柱线圈接头1线圈";
+                        spara = "当前线圈为：苏州众志 18通道 脊柱线圈接头1线圈";
                     else if(s == "04")
-                        spara = "当前线圈为：苏州众致 18通道 脊柱线圈接头2线圈";
+                        spara = "当前线圈为：苏州众志 18通道 脊柱线圈接头2线圈";
                     else if(s == "05")
-                        spara = "当前线圈为：苏州众致 6通道 腹部线圈";
+                        spara = "当前线圈为：苏州众志 6通道 腹部线圈";
                     else if(s == "06")
-                        spara = "当前线圈为：苏州众致 8通道 膝关节线圈";
+                        spara = "当前线圈为：苏州众志 8通道 膝关节线圈";
                     else if(s == "07")
-                        spara = "当前线圈为：苏州众致 4通道 肩关节线圈";
+                        spara = "当前线圈为：苏州众志 4通道 肩关节线圈";
                     else if(s == "08")
-                        spara = "当前线圈为：苏州众致 8通道 手腕线圈";
+                        spara = "当前线圈为：苏州众志 8通道 手腕线圈";
                     else if(s == "09")
-                        spara = "当前线圈为：苏州众致 8通道 脚踝线圈";
+                        spara = "当前线圈为：苏州众志 8通道 脚踝线圈";
                     else if(s == "10")
-                        spara = "当前线圈为：苏州众致 8通道 颈动脉线圈";
+                        spara = "当前线圈为：苏州众志 8通道 颈动脉线圈";
                     else if(s == "11")
-                        spara = "当前线圈为：苏州众致 8通道 乳腺线圈";
+                        spara = "当前线圈为：苏州众志 8通道 乳腺线圈";
                     else if(s == "17")
-                        spara = "当前线圈为：苏州众致 8通道 头线圈";
+                        spara = "当前线圈为：苏州众志 8通道 头线圈";
                     else if(s == "18")
-                        spara = "当前线圈为：苏州众致 8通道 躯干线圈";
+                        spara = "当前线圈为：苏州众志 8通道 躯干线圈";
                     else if(s == "19")
-                        spara = "当前线圈为：苏州众致 8通道 颈椎胸椎线圈";
+                        spara = "当前线圈为：苏州众志 8通道 颈椎胸椎线圈";
                     else if(s == "21")
-                        spara = "当前线圈为：苏州众致 6通道 脊柱线圈";
+                        spara = "当前线圈为：苏州众志 6通道 脊柱线圈";
                     else if(s == "22")
-                        spara = "当前线圈为：苏州众致 6通道 脊柱线圈";
+                        spara = "当前线圈为：苏州众志 6通道 脊柱线圈";
                     else if(s == "23")
-                        spara = "当前线圈为：苏州众致 8通道 乳腺线圈";
+                        spara = "当前线圈为：苏州众志 8通道 乳腺线圈";
+                    else if (s == "23")
+                        spara = "当前线圈为：苏州众志 8通道 颈椎线圈";
                     else 
                         spara = "未识别当前线圈";
 
@@ -175,10 +190,10 @@ namespace coil_test_and_switch
                     this.Invoke((EventHandler)(delegate
                     {
                         this.textBoxReceive.Clear();
-                        builder.Append("HEX:" + txt + "\r\n");
-                        builder.Append("ASCII:" + text + "\r\n");
-                        builder.Append("Char:" + para + "\r\n");
+                        //builder.Append("comm.ReadLine:" + parain + "\r\n");
+                        builder.Append("String(buf):" + para + "\r\n");
                         builder.Append("MSG:" + spara + "\r\n");
+                        builder.Append("HEX:" + txt + "\r\n");
                         this.textBoxReceive.AppendText(builder.ToString());
                     }));
                 }
@@ -187,6 +202,41 @@ namespace coil_test_and_switch
                     Listening = false;//我用完了，ui可以关闭串口了。  
                 }
             }
+             /// 字符串转16进制字节数组
+            /// </summary>
+           /// <param name=”hexString”></param>
+            /// <returns></returns>
+            public static byte[] strToToHexByte(string hexString)
+            {
+                hexString = hexString.Replace(" ", "");
+                if ((hexString.Length % 2) != 0)
+                    hexString += " ";
+                byte[] returnBytes = new byte[hexString.Length / 2];
+                for (int i = 0; i < returnBytes.Length; i++)
+                    returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
+                return returnBytes;
+            }
+            public string ConvertStringToHex(string strASCII, string separator = null)
+            {
+                StringBuilder sbHex = new StringBuilder();
+                foreach (char chr in strASCII)
+                {
+                    sbHex.Append(String.Format("{0:X2}", Convert.ToInt32(chr)));
+                    sbHex.Append(separator ?? string.Empty);
+                }
+                return sbHex.ToString();
+            }
+            public string ConvertHexToString(string HexValue, string separator = null)
+            {
+                HexValue = string.IsNullOrEmpty(separator) ? HexValue : HexValue.Replace(string.Empty, separator);
+                StringBuilder sbStrValue = new StringBuilder();
+                while (HexValue.Length > 0)
+                {
+                    sbStrValue.Append(Convert.ToChar(Convert.ToUInt32(HexValue.Substring(0, 2), 16)).ToString());
+                    HexValue = HexValue.Substring(2);
+                }
+                return sbStrValue.ToString();
+            }  
             public static string ByteToHexStr(byte[] bytes) //函数,字节数组转16进制字符串
             {
                 string returnStr = "";
