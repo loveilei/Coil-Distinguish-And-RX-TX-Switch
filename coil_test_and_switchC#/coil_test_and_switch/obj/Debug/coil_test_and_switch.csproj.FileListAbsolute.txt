@@ -1,7 +1,6 @@
 D:\WDM\CoilInfo\coil_test_and_switchC#\coil_test_and_switch\bin\Debug\coil_test_and_switch.exe.config
 D:\WDM\CoilInfo\coil_test_and_switchC#\coil_test_and_switch\bin\Debug\coil_test_and_switch.exe
 D:\WDM\CoilInfo\coil_test_and_switchC#\coil_test_and_switch\bin\Debug\coil_test_and_switch.pdb
-D:\WDM\CoilInfo\coil_test_and_switchC#\coil_test_and_switch\obj\Debug\coil_test_and_switch.csprojResolveAssemblyReference.cache
 D:\WDM\CoilInfo\coil_test_and_switchC#\coil_test_and_switch\obj\Debug\coil_test_and_switch.SerialportSampleForm.resources
 D:\WDM\CoilInfo\coil_test_and_switchC#\coil_test_and_switch\obj\Debug\coil_test_and_switch.Properties.Resources.resources
 D:\WDM\CoilInfo\coil_test_and_switchC#\coil_test_and_switch\obj\Debug\coil_test_and_switch.csproj.GenerateResource.Cache

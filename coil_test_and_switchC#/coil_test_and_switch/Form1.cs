@@ -40,7 +40,8 @@ namespace coil_test_and_switch
                     comm.BaudRate = 9600;
                     comm.StopBits = StopBits.One;//
                     comm.DataBits = 8;//
-                    comm.Parity = Parity.None;//设置串口属性
+                    comm.Parity = Parity.Even;//设置串口属性
+                    comm.Handshake = Handshake.None;
                 
                     try
                     {
@@ -120,22 +121,18 @@ namespace coil_test_and_switch
                     builder.Clear();
 
                     char[] cpara = System.Text.Encoding.Default.GetChars(buf);
-
-                    foreach (byte b in buf)
-                    {
-                         builder.Append("Hex" + b.ToString("x") + " ");
-                    }
                     
-                   
+                    //输出这些信息
+                    String para = new String(cpara);
                     string txt = ByteToHexStr(buf); //用到函数，作用：转换16进制
-                    String spara = new String(cpara);
                     string text = Encoding.ASCII.GetString(buf); //ASCII卡码
+
                     //string s = spara.Substring(12,2); 
-                    string s = txt.Substring(12, 2); 
-                    
                     if(txt.Length<15)
                     { MessageBox.Show("LengthError"); return; }
-                    else if(s == "01")
+                    string s = txt.Substring(12, 2);
+                    String spara = "";// new String(cpara); 
+                    if(s == "01")
                         spara = "当前线圈为：苏州众致 16通道 头颈上部分线圈";
                     else if(s == "02")
                         spara = "当前线圈为：苏州众致 16通道 头颈下部分线圈";
@@ -177,17 +174,12 @@ namespace coil_test_and_switch
                     MessageBox.Show(spara);
                     this.Invoke((EventHandler)(delegate
                     {
-                        /*foreach (byte b in buf)
-                        {
-                            builder.Append(b.ToString("X2") + " ");
-                        }
-                            */
-                        builder.Append(spara + "\r\n");
-                        builder.Append(cpara);
-                          
                         this.textBoxReceive.Clear();
+                        builder.Append("HEX:" + txt + "\r\n");
+                        builder.Append("ASCII:" + text + "\r\n");
+                        builder.Append("Char:" + para + "\r\n");
+                        builder.Append("MSG:" + spara + "\r\n");
                         this.textBoxReceive.AppendText(builder.ToString());
-                        
                     }));
                 }
                 finally
@@ -231,7 +223,7 @@ namespace coil_test_and_switch
             {
                 try
                 {
-                    comm.WriteLine("BE0DF201000OV");//往串口写数据
+                    comm.WriteLine("BE0DF200100OV");//往串口写数据
                 }
                 catch (Exception ex)
                 {
@@ -248,7 +240,7 @@ namespace coil_test_and_switch
             {
                 try
                 {
-                    comm.WriteLine("BE0DF200100OV");//往串口写数据
+                    comm.WriteLine("BE0DF201000OV");//往串口写数据
                 }
                 catch (Exception ex)
                 {
@@ -258,6 +250,23 @@ namespace coil_test_and_switch
                 if (comm.IsOpen)
                 {
                     MessageBox.Show("只开颈线圈");
+                }
+            }
+
+            private void button3_Click(object sender, EventArgs e)
+            {
+                try
+                {
+                    comm.WriteLine("BE0DF200000OV");//往串口写数据
+                }
+                catch (Exception ex)
+                {
+                    comm = new SerialPort();
+                    MessageBox.Show(ex.Message);
+                }
+                if (comm.IsOpen)
+                {
+                    MessageBox.Show("打开所有通道");
                 }
             }
         }
