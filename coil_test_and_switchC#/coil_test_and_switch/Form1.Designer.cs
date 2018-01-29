@@ -33,6 +33,7 @@
             this.buttonRxReceive = new System.Windows.Forms.Button();
             this.buttonTxReceive = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.cleanScreen = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.textBox5 = new System.Windows.Forms.TextBox();
@@ -44,6 +45,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.buttonAcqCoilInfo = new System.Windows.Forms.Button();
@@ -55,7 +57,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.textBox7 = new System.Windows.Forms.TextBox();
-            this.button3 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -110,6 +111,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.cleanScreen);
             this.groupBox1.Controls.Add(this.groupBox3);
             this.groupBox1.Controls.Add(this.textBoxReceive);
             this.groupBox1.Location = new System.Drawing.Point(49, 134);
@@ -118,6 +120,16 @@
             this.groupBox1.TabIndex = 8;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "当前线圈信息";
+            // 
+            // cleanScreen
+            // 
+            this.cleanScreen.Location = new System.Drawing.Point(404, 12);
+            this.cleanScreen.Name = "cleanScreen";
+            this.cleanScreen.Size = new System.Drawing.Size(83, 34);
+            this.cleanScreen.TabIndex = 16;
+            this.cleanScreen.Text = "清空";
+            this.cleanScreen.UseVisualStyleBackColor = true;
+            this.cleanScreen.Click += new System.EventHandler(this.清空_Click);
             // 
             // groupBox3
             // 
@@ -223,6 +235,17 @@
             this.groupBox4.TabIndex = 16;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "头颈线圈失谐设定";
+            // 
+            // button3
+            // 
+            this.button3.BackColor = System.Drawing.Color.Salmon;
+            this.button3.Location = new System.Drawing.Point(350, 27);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(88, 34);
+            this.button3.TabIndex = 2;
+            this.button3.Text = "重置";
+            this.button3.UseVisualStyleBackColor = false;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // button2
             // 
@@ -334,17 +357,6 @@
             this.textBox7.Size = new System.Drawing.Size(157, 28);
             this.textBox7.TabIndex = 1;
             // 
-            // button3
-            // 
-            this.button3.BackColor = System.Drawing.Color.Salmon;
-            this.button3.Location = new System.Drawing.Point(350, 27);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(88, 34);
-            this.button3.TabIndex = 2;
-            this.button3.Text = "重置";
-            this.button3.UseVisualStyleBackColor = false;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
-            // 
             // SerialportSampleForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
@@ -404,6 +416,7 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button cleanScreen;
     }
 }
 
