@@ -12,17 +12,15 @@ using System.Text.RegularExpressions;
 
 namespace coil_test_and_switch
 {
-
-
     public partial class SerialportSampleForm : Form
     {
         private bool Closin = false;
-        private StringBuilder builder = new StringBuilder(); 
+        private StringBuilder builder = new StringBuilder();
+        private SerialPort comm = new SerialPort();
         public SerialportSampleForm()
         {
             InitializeComponent();
         }
-        private SerialPort comm = new SerialPort();
         private void SerialportSampleForm_Load_1(object sender, EventArgs e)
         {
             string[] ports = SerialPort.GetPortNames();
@@ -35,11 +33,9 @@ namespace coil_test_and_switch
             comboPortName.Items.AddRange(ports);
             comboPortName.SelectedIndex = comboPortName.Items.Count > 0 ? 0 : -1;
             //comm.DataReceived += comm_DataReceived;
-            //
         }
         private void button1_Click(object sender, EventArgs e)
         {
-
             if (comm.IsOpen)
             {
                 Closin = true;
@@ -57,10 +53,9 @@ namespace coil_test_and_switch
                     comm.Parity = Parity.None;//设置串口属性
                     comm.Handshake = Handshake.None;
                     comm.ReadTimeout = 1000;
-                    comm.WriteTimeout = 1000; 
+                    comm.WriteTimeout = 1000;
                     comm.Open();
                     comm.DiscardInBuffer();
-
                 }
                 catch (Exception ex)
                 {
@@ -70,10 +65,7 @@ namespace coil_test_and_switch
             }
             comm.DataReceived += comm_DataReceived;
             buttonOpenClose.Text = comm.IsOpen ? "关闭" : "打开";
-
         }
-        
-
         void comm_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             if (Closin) return;//如果正在关闭，忽略操作，直接返回，尽快的完成串口监听线程的一次循环  
@@ -89,73 +81,11 @@ namespace coil_test_and_switch
             string para2 = ByteToHexStr(data); //转换16进制
             builder.Clear();
             //String data = comm.ReadExisting();
-            /*
-            //1.缓存数据
-            buffer.AddRange(data);//不断地将接收到的数据加入到buffer链表中
-            //2.完整性判断
-            while (buffer.Count >= 4) //至少包含帧头（2字节）、长度（1字节）、功能位（1字节）；根据设计不同而不同
-            {
-                //2.1 查找数据头
-                if (buffer[0] == 0x0AA) //传输数据有帧头，用于判断. 找到帧头  AA AA 0A 
-                {
-                    int len = buffer[2];
-                    //int len = 79;
-                    if (buffer.Count < len + 4) //数据区尚未接收完整，
-                    {
-                        break;//跳出接收函数后之后继续接收数据
-                    }
-                    //得到完整的数据，复制到ReceiveBytes中进行校验
-                    buffer.CopyTo(0, ReceiveBytes, 0, len + 4);//
-                    byte jiaoyan; //开始校验
-                    jiaoyan = 0x01;//jiaoyan = this.JY(ReceiveBytes);
-
-                    if (jiaoyan != ReceiveBytes[3]) //验证功能位失败    if (jiaoyan != ReceiveBytes[len+3])
-                    {
-                        buffer.RemoveRange(0, len + 4);//从链表中移除接收到的校验失败的数据，
-                        //MessageBox.Show("数据包不正确！");//显示数据包不正确,
-                        continue;//继续执行while循环程序,
-                    }
-                    buffer.RemoveRange(0, len + 4);
-                    //执行其他代码，对数据进行处理。
-                    //解析5 6， 7 8字节的经纬度.
-                    DataProgress();
-                }
-                else //帧头不正确时，记得清除
-                {
-                    buffer.RemoveAt(0);//清除第一个字节，继续检测下一个。
-                }
-            }
-                //comm.DiscardInBuffer();
-                //string dtmStr = System.Text.Encoding.Default.GetString(data);//.TrimEnd('\0');
-
-                //String para2 = Bytes2Hex(data);
-                int n = comm.BytesToRead;
-                char[] buf = new char[n];
-                //received_count += n;
-                comm.Read(buf, 0, n);
-                builder.Clear();
-                //char[] cpara = System.Text.Encoding.Default.GetChars(buf);
-                //输出这些信息
-                //String para = new String(buf);
-                //string txt = ByteToHexStr(buf); //转换16进制
-                //byte[] txt = strToToHexByte(para);
-                //string txt = ConvertStringToHex(readbuffer);
-                //string text = Encoding.ASCII.GetString(buf); //ASCII码
-                //string input = comm.ReadLine();
-                //char[] values = input.ToCharArray();
-                //String parain = new String(values);
-                //string s = spara.Substring(12,2); 
-                 
-             */
-            
             if (para2.Length >= 29 && para2.Substring(0, 5) == "43 43" && para2.Substring(27, 2) == "41")
             {
-
                 if (para2.Length < 15)
                 { MessageBox.Show("LengthError"); return; }
-
                 String s = para2.Substring(12, 2);
-                
 
                 String spara = "";
                 if (s == "01")
@@ -201,9 +131,9 @@ namespace coil_test_and_switch
                 this.Invoke((EventHandler)(delegate
                 {
                     this.textBoxReceive.Clear();
-                    builder.Append("ByteToHexStr:" + para2 + "\r\n");
+                    builder.Append("Hex:" + para2 + "\r\n");
                     builder.Append(spara + "\r\n");
-                    builder.Append("comm.Read:" + para + "\r\n");
+                    builder.Append("ASCII:" + para + "\r\n");
                     this.textBoxReceive.AppendText(builder.ToString());
                 }));
             }
@@ -211,27 +141,17 @@ namespace coil_test_and_switch
             {
                 this.Invoke((EventHandler)(delegate
                 {
-                    this.textBoxReceive.Clear();
-                    builder.Append("ByteToHexStr:" + para2 + "\r\n");
-                    builder.Append("comm.Read:" + para + "\r\n");
+                    //this.textBoxReceive.Clear();
+                    //builder.Append("ByteToHexStr:" + para2 + "\r\n");
+                    builder.Append(para);
                     this.textBoxReceive.AppendText(builder.ToString());
                 }));
             }
-
         }
-
-        private static string extractData(string data)
+        private void textBox3_TextChanged(object sender, EventArgs e)
         {
-            //const byte stx = 0x41;
-            const byte etx = 0x43;
-
-            return data.TrimEnd(new char[] { (char)etx });
-        }
-
-
-        public static String Bytes2Hex(Byte[] bytes)
-        {
-            return BitConverter.ToString(bytes);
+            textBoxReceive.SelectionStart = textBoxReceive.Text.Length;
+            textBoxReceive.ScrollToCaret();
         }
         public static string ByteToHexStr(byte[] bytes) //函数,字节数组转16进制字符串
         {
@@ -246,6 +166,347 @@ namespace coil_test_and_switch
             }
             return returnStr;
         }
+        private void button2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                comm.Write("NULL");//往串口写数据
+            }
+            catch (Exception ex)
+            {
+                comm = new SerialPort();
+                MessageBox.Show(ex.Message);
+            }
+            MessageBox.Show("请拔插线圈以获取线圈数据");
+
+        }
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                comm.Write("BEF0DF00100OV");//往串口写数据
+            }
+            catch (Exception ex)
+            {
+                comm = new SerialPort();
+                MessageBox.Show(ex.Message);
+            }
+            if (comm.IsOpen)
+            {
+                MessageBox.Show("只开头线圈");
+            }
+        }
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                comm.Write("BEF0DF01000OV");//往串口写数据
+            }
+            catch (Exception ex)
+            {
+                comm = new SerialPort();
+                MessageBox.Show(ex.Message);
+            }
+            if (comm.IsOpen)
+            {
+                MessageBox.Show("只开颈线圈");
+            }
+        }
+        private void button3_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                comm.Write("BEF0DF00000OV");//往串口写数据
+            }
+            catch (Exception ex)
+            {
+                comm = new SerialPort();
+                MessageBox.Show(ex.Message);
+            }
+            if (comm.IsOpen)
+            {
+                MessageBox.Show("打开所有通道");
+            }
+        }
+        private void button5_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                comm.Write("BEF0DF00000OV");//往串口写数据
+            }
+            catch (Exception ex)
+            {
+                comm = new SerialPort();
+                MessageBox.Show(ex.Message);
+            }
+            if (comm.IsOpen)
+            {
+                MessageBox.Show("切换为常规接收模式");
+            }
+        }
+        private void button6_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                comm.Write("BEF0DF11111OV");//往串口写数据
+            }
+            catch (Exception ex)
+            {
+                comm = new SerialPort();
+                MessageBox.Show(ex.Message);
+            }
+            if (comm.IsOpen)
+            {
+                MessageBox.Show("切换为体线圈接收模式");
+            }
+        }
+        private void comboPortName_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+        private void 清空_Click(object sender, EventArgs e)
+        {
+            textBoxReceive.Text = "";
+        }
+        private void buttonApply_Click(object sender, EventArgs e)
+        {
+            if (comm.IsOpen)
+            {
+                bool a = checkBoxCh1_4.Checked;
+                bool b = checkBoxCh5_8.Checked;
+                bool c = checkBoxCh9_12.Checked;
+                bool d = checkBoxCh13_16.Checked;
+
+                if (a && !b && !c && !d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF00111OV");//往串口写数据1
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("只开1-4通道");
+                }
+                else if (!a && b && !c && !d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF01011OV");//往串口写数据2
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("只开5-8通道");
+                }
+                else if (!a && !b && c && !d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF01101OV");//往串口写数据3
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("只开9-12通道");
+                }
+                else if (!a && !b && !c && d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF01110OV");//往串口写数据4
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("只开13-16通道");
+                }
+                else if (a && b && !c && !d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF00011OV");//往串口写数据5
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("只开1-8通道");
+                }
+                else if (a && !b && c && !d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF0101OV");//往串口写数据6
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("开1-4和9-12通道");
+                }
+                else if (a && !b && !c && d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF00110OV");//往串口写数据7
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("开1-4和13-16通道");
+                }
+                else if (!a && b && c && !d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF01001OV");//往串口写数据8
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("开5-12通道");
+                }
+                else if (!a && b && !c && d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF01010OV");//往串口写数据9
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("开5-8和13-16通道");
+                }
+                else if (!a && !b && c && d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF01100OV");//往串口写数据10
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("只开13-16通道");
+                }
+                else if (a && b && c && !d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF00001OV");//往串口写数据11
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("只开1-12通道");
+                }
+                else if (a && !b && c && d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF00001OV");//往串口写数据12
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("只开1-4和9-16通道");
+                }
+                else if (a && b && !c && d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF00010OV");//往串口写数据13
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("开1-8和13-16通道");
+                }
+                else if (!a && b && c && d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF01000OV");//往串口写数据14
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("开5-16通道");
+                }
+                else if (a && b && c && d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF00000OV");//往串口写数据15
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("开1-16通道");
+                }
+                else if (!a && !b && !c && !d)
+                {
+                    try
+                    {
+                        comm.Write("BEF0DF10000OV");//往串口写数据16
+                    }
+                    catch (Exception ex)
+                    {
+                        comm = new SerialPort();
+                        MessageBox.Show(ex.Message);
+                    }
+                    MessageBox.Show("关闭所有通道");
+                }
+                else
+                {
+                    MessageBox.Show("Something error");
+                }
+            }
+            else
+                MessageBox.Show("请打开端口");
+        }
+    }
+}
+/*
+ private static string extractData(string data)
+        {
+            //const byte stx = 0x41;
+            const byte etx = 0x43;
+
+            return data.TrimEnd(new char[] { (char)etx });
+        }
+        public static String Bytes2Hex(Byte[] bytes)
+        {
+            return BitConverter.ToString(bytes);
+        }        
         public static byte[] strToToHexByte(string hexString)
         {
             hexString = hexString.Replace(" ", "");
@@ -277,124 +538,62 @@ namespace coil_test_and_switch
             }
             return sbStrValue.ToString();
         }
+*/
+/*
+           //1.缓存数据
+           buffer.AddRange(data);//不断地将接收到的数据加入到buffer链表中
+           //2.完整性判断
+           while (buffer.Count >= 4) //至少包含帧头（2字节）、长度（1字节）、功能位（1字节）；根据设计不同而不同
+           {
+               //2.1 查找数据头
+               if (buffer[0] == 0x0AA) //传输数据有帧头，用于判断. 找到帧头  AA AA 0A 
+               {
+                   int len = buffer[2];
+                   //int len = 79;
+                   if (buffer.Count < len + 4) //数据区尚未接收完整，
+                   {
+                       break;//跳出接收函数后之后继续接收数据
+                   }
+                   //得到完整的数据，复制到ReceiveBytes中进行校验
+                   buffer.CopyTo(0, ReceiveBytes, 0, len + 4);//
+                   byte jiaoyan; //开始校验
+                   jiaoyan = 0x01;//jiaoyan = this.JY(ReceiveBytes);
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                comm.WriteLine("NULL");//往串口写数据
-            }
-            catch (Exception ex)
-            {
-                comm = new SerialPort();
-                MessageBox.Show(ex.Message);
-            }
-            MessageBox.Show("请拔插线圈以获取线圈数据");
+                   if (jiaoyan != ReceiveBytes[3]) //验证功能位失败    if (jiaoyan != ReceiveBytes[len+3])
+                   {
+                       buffer.RemoveRange(0, len + 4);//从链表中移除接收到的校验失败的数据，
+                       //MessageBox.Show("数据包不正确！");//显示数据包不正确,
+                       continue;//继续执行while循环程序,
+                   }
+                   buffer.RemoveRange(0, len + 4);
+                   //执行其他代码，对数据进行处理。
+                   //解析5 6， 7 8字节的经纬度.
+                   DataProgress();
+               }
+               else //帧头不正确时，记得清除
+               {
+                   buffer.RemoveAt(0);//清除第一个字节，继续检测下一个。
+               }
+           }
+               //comm.DiscardInBuffer();
+               //string dtmStr = System.Text.Encoding.Default.GetString(data);//.TrimEnd('\0');
 
-        }
-
-        private void textBox3_TextChanged(object sender, EventArgs e)
-        {
-
-            textBoxReceive.SelectionStart = textBoxReceive.Text.Length;
-            textBoxReceive.ScrollToCaret();
-
-        }
-
-        private void button1_Click_1(object sender, EventArgs e)
-        {
-            try
-            {
-                comm.WriteLine("BE0DF200100OV");//往串口写数据
-            }
-            catch (Exception ex)
-            {
-                comm = new SerialPort();
-                MessageBox.Show(ex.Message);
-            }
-            if (comm.IsOpen)
-            {
-                MessageBox.Show("只开头线圈");
-            }
-        }
-
-        private void button2_Click_1(object sender, EventArgs e)
-        {
-            try
-            {
-                comm.WriteLine("BE0DF201000OV");//往串口写数据
-            }
-            catch (Exception ex)
-            {
-                comm = new SerialPort();
-                MessageBox.Show(ex.Message);
-            }
-            if (comm.IsOpen)
-            {
-                MessageBox.Show("只开颈线圈");
-            }
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                comm.WriteLine("BE0DF200000OV");//往串口写数据
-            }
-            catch (Exception ex)
-            {
-                comm = new SerialPort();
-                MessageBox.Show(ex.Message);
-            }
-            if (comm.IsOpen)
-            {
-                MessageBox.Show("打开所有通道");
-            }
-        }
-        private void button5_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                comm.WriteLine("BE0DF200000OV");//往串口写数据
-            }
-            catch (Exception ex)
-            {
-                comm = new SerialPort();
-                MessageBox.Show(ex.Message);
-            }
-            if (comm.IsOpen)
-            {
-                MessageBox.Show("切换为常规接收模式");
-            }
-        }
-
-        private void button6_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                comm.WriteLine("BE0DF211111OV");//往串口写数据
-            }
-            catch (Exception ex)
-            {
-                comm = new SerialPort();
-                MessageBox.Show(ex.Message);
-            }
-            if (comm.IsOpen)
-            {
-                MessageBox.Show("切换为体线圈接收模式");
-            }
-        }
-
-
-
-        private void comboPortName_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void 清空_Click(object sender, EventArgs e)
-        {
-            textBoxReceive.Text = "";
-        }
-    }
-}
+               //String para2 = Bytes2Hex(data);
+               int n = comm.BytesToRead;
+               char[] buf = new char[n];
+               //received_count += n;
+               comm.Read(buf, 0, n);
+               builder.Clear();
+               //char[] cpara = System.Text.Encoding.Default.GetChars(buf);
+               //输出这些信息
+               //String para = new String(buf);
+               //string txt = ByteToHexStr(buf); //转换16进制
+               //byte[] txt = strToToHexByte(para);
+               //string txt = ConvertStringToHex(readbuffer);
+               //string text = Encoding.ASCII.GetString(buf); //ASCII码
+               //string input = comm.ReadLine();
+               //char[] values = input.ToCharArray();
+               //String parain = new String(values);
+               //string s = spara.Substring(12,2); 
+                 
+            */
