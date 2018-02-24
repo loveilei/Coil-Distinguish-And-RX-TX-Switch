@@ -115,7 +115,7 @@ namespace coil_test_and_switch
                 else if (s == "18")
                     spara = "当前线圈为：苏州众志 8通道 躯干线圈";
                 else if (s == "19")
-                    spara = "当前线圈为：苏州众志 8通道 颈椎胸椎线圈";
+                    spara = "当前线圈为：苏州众志 8通道 颈胸联合线圈";
                 else if (s == "21")
                     spara = "当前线圈为：苏州众志 6通道 脊柱线圈";
                 else if (s == "22")
